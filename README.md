@@ -10,7 +10,7 @@ Algorithm visualization tool (sorting, searching, graph, data structures)
 - Compare mode
 
 ## Demo
-
+https://xiao-guangheng.github.io/AlgoLab-Visualizer/
 
 ## Tech
 - HTML
