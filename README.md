@@ -1,18 +1,31 @@
-# AlgoLab-Visualizer
-Algorithm visualization tool (sorting, searching, graph, data structures)
+# AlgoLab Visualizer
 
-## Features
-- Sorting algorithms (Bubble, Quick, Merge...)
+An interactive platform for visualizing algorithms and data structures.
+
+## 🚀 Live Demo
+👉 https://xiao-guangheng.github.io/AlgoLab-Visualizer/
+
+## ✨ Features
+- Sorting (Bubble, Quick, Merge, etc.)
 - Searching (Binary, Linear)
 - Graph algorithms (BFS, DFS, Dijkstra, A*)
 - Data structures (Stack, Queue, Linked List, BST)
 - Step-by-step execution
+- Pause / Resume control
 - Compare mode
 
-## Demo
-https://xiao-guangheng.github.io/AlgoLab-Visualizer/
+## 🧠 Highlights
+- Interactive graph editor
+- Real-time animation engine
+- Modular architecture (HTML + CSS + JS separation)
+- Code synchronization with visualization
 
-## Tech
+## 🛠 Tech Stack
 - HTML
 - CSS
 - JavaScript
+
+## 📌 Future Improvements
+- Algorithm complexity tracking
+- AI-based explanation system
+- More algorithms (DP, Greedy, etc.)
