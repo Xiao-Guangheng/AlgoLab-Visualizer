@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoLab Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <section class="hero panel">
+      <div>
+        <h1 class="title">AlgoLab Visualizer</h1>
+        <p class="subtitle">Sorting, Searching, DFS/BFS with step control, code sync highlight, and compare mode.</p>
+      </div>
+      <p class="small-note">Animation core: setTimeout + requestAnimationFrame-ready rendering</p>
+    </section>
+
+    <section class="controls panel">
+      <div class="control span-2">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="single">Single Algorithm</option>
+          <option value="compare">Compare Mode</option>
+        </select>
+      </div>
+
+      <div class="control span-2" id="singleAlgoWrap">
+        <label for="algoSelect">Algorithm</label>
+        <select id="algoSelect">
+          <optgroup label="Sorting">
+            <option value="bubble">Bubble Sort</option>
+            <option value="insertion">Insertion Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="quick">Quick Sort</option>
+            <option value="merge">Merge Sort</option>
+            <option value="shell">Shell Sort</option>
+            <option value="counting">Counting Sort</option>
+            <option value="bucket">Bucket Sort</option>
+            <option value="radix">Radix Sort</option>
+            <option value="heap">Heap Sort</option>
+          </optgroup>
+          <optgroup label="Searching">
+            <option value="linear">Linear Search</option>
+            <option value="binary">Binary Search</option>
+          </optgroup>
+          <optgroup label="Graph">
+            <option value="dfs">DFS (Grid)</option>
+            <option value="bfs">BFS (Grid)</option>
+            <option value="dijkstra">Dijkstra</option>
+            <option value="astar">A* Algorithm</option>
+          </optgroup>
+          <optgroup label="Data Structures">
+            <option value="stack">Stack</option>
+            <option value="queue">Queue</option>
+            <option value="linkedlist">Linked List</option>
+            <option value="bst">Binary Search Tree</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="control span-4" id="compareWrap" style="display:none;">
+        <label>Algorithms to Compare</label>
+        <div style="display:flex; gap:10px;">
+          <select id="compareSelect1" style="flex:1;">
+            <option value="bubble">Bubble Sort</option>
+            <option value="insertion">Insertion Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="quick" selected>Quick Sort</option>
+            <option value="merge">Merge Sort</option>
+            <option value="shell">Shell Sort</option>
+            <option value="heap">Heap Sort</option>
+          </select>
+          <span style="align-self:center; font-weight:bold; color:var(--sub);">VS</span>
+          <select id="compareSelect2" style="flex:1;">
+            <option value="bubble">Bubble Sort</option>
+            <option value="insertion">Insertion Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="quick">Quick Sort</option>
+            <option value="merge" selected>Merge Sort</option>
+            <option value="shell">Shell Sort</option>
+            <option value="heap">Heap Sort</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control span-3" id="arrayWrap">
+        <label for="arrayInput">Array Input (comma-separated)</label>
+        <input id="arrayInput" value="42,17,8,99,23,61,5,73,31,55" />
+      </div>
+
+      <div class="control span-2" id="targetWrap">
+        <label for="targetInput">Search Target</label>
+        <input id="targetInput" type="number" value="31" />
+      </div>
+
+      <div class="control span-2">
+        <label for="speedRange">Speed (ms/step)</label>
+        <input id="speedRange" type="range" min="20" max="1000" value="220" />
+      </div>
+
+      <div class="control span-2" id="arrayViewWrap">
+        <label for="arrayViewSelect">Array Visual Style</label>
+        <select id="arrayViewSelect">
+          <option value="bars">Bars (Classic)</option>
+          <option value="cards">Data Insert Cards</option>
+        </select>
+      </div>
+
+      <div class="control span-4">
+        <label>Actions</label>
+        <div class="actions-row">
+          <button class="action-btn action-run" id="runBtn">Run</button>
+          <button class="action-btn action-pause" id="pauseBtn">Pause</button>
+          <button class="action-btn action-continue" id="resumeBtn">Continue</button>
+          <button class="action-btn action-step" id="stepBtn">Step</button>
+          <button class="action-btn action-random" id="randomBtn">Random Data</button>
+          <button class="action-btn action-reset" id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="control span-4" id="graphEditorWrap" style="display:none;">
+        <label>Graph Editor</label>
+        <div class="graph-tools">
+          <button class="tool-btn tool-start" id="setStartBtn">Set Start</button>
+          <button class="tool-btn tool-end" id="setEndBtn">Set End</button>
+          <button class="tool-btn tool-wall" id="setWallBtn">Toggle Wall</button>
+          <button class="tool-btn tool-erase" id="eraseBtn">Erase Wall</button>
+          <button class="tool-btn tool-random-wall" id="randWallBtn">Random Walls</button>
+          <button class="tool-btn tool-clear-wall" id="clearWallBtn">Clear Walls</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel visual-wrap">
+        <div class="visual-toolbar">
+          <p class="small-note">Main Visualization Area</p>
+          <button class="toggle-info-btn" id="toggleInfoBtn">Hide Code & Explain</button>
+        </div>
+        <div class="viz-grid" id="vizGrid"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <aside class="panel right" id="rightPane"></aside>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

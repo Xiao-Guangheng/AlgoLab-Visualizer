@@ -1,0 +1,1372 @@
+const arrayAlgos = ["bubble", "insertion", "selection", "quick", "merge", "shell", "counting", "bucket", "radix", "heap", "linear", "binary", "stack", "queue"];
+
+const graphAlgos = ["bfs", "dfs", "dijkstra", "astar"];
+
+const codeBook = {
+  bubble: ["for i = 0 .. n-1", "  for j = 0 .. n-i-2", "    if arr[j] > arr[j+1]", "      swap(arr[j], arr[j+1])"],
+  insertion: ["for i = 1 .. n-1", "  key = arr[i]", "  while j >= 0 and arr[j] > key", "    arr[j+1] = arr[j]", "  arr[j+1] = key"],
+  selection: ["for i = 0 .. n-1", "  min = i", "  for j = i+1 .. n-1", "    if arr[j] < arr[min]", "  swap(arr[i], arr[min])"],
+  quick: ["quickSort(left, right)", "pivot = arr[right]", "for j from left to right-1", "  if arr[j] < pivot", "    swap(arr[i], arr[j])", "swap(arr[i+1], arr[right])"],
+  merge: ["mergeSort(arr)", "split array into left / right", "while left and right not empty", "  pick smaller and write back", "append remaining items"],
+  shell: ["gap = n / 2", "while gap > 0", "  insertion sort by gap", "  compare arr[j-gap] > temp", "gap = floor(gap / 2)"],
+  counting: ["find min and max", "count each value", "prefix sum / rebuild", "write values back to array"],
+  bucket: ["create buckets by range", "put values into buckets", "sort each bucket", "concatenate buckets"],
+  radix: ["for exp = 1,10,100...", "count digits at exp", "stable write by digit", "repeat until max/exp == 0"],
+  heap: ["build max-heap", "swap root with end", "heapify reduced heap", "repeat until sorted"],
+  linear: ["for i = 0 .. n-1", "  if arr[i] == target", "    return i", "return -1"],
+  binary: ["low = 0, high = n-1", "while low <= high", "  mid = floor((low+high)/2)", "  if arr[mid] == target return mid", "  if arr[mid] < target low = mid+1", "  else high = mid-1"],
+  bfs: ["queue.push(start)", "while queue not empty", "  node = queue.shift()", "  for each neighbor", "    if unvisited: mark and enqueue"],
+  dfs: ["stack.push(start)", "while stack not empty", "  node = stack.pop()", "  for each neighbor", "    if unvisited: mark and push"],
+  dijkstra: ["dist[start] = 0", "pick unvisited node with min dist", "relax each neighbor", "update distance + parent", "repeat until done"],
+  astar: ["gSearch[start] = 0, fScore = h", "pick min fScore node", "if target return path", "update neighbor gScore & fScore"],
+  stack: ["push(val):", "  append to top", "pop():", "  remove from top"],
+  queue: ["enqueue(val):", "  append to back", "dequeue():", "  remove from front"],
+  linkedlist: ["curr = head", "while curr.next != null", "  curr = curr.next", "curr.next = new Node(val)", "return head"],
+  bst: ["curr = root", "while curr:", "  if val < curr.val: go left", "  else: go right", "insert as child"]
+};
+
+const explainBook = {
+  bubble: { principle: "Repeatedly compare adjacent items and swap if out of order.", time: "O(n^2)", space: "O(1)" },
+  insertion: { principle: "Build sorted prefix by inserting each element to its position.", time: "O(n^2)", space: "O(1)" },
+  selection: { principle: "Select minimum from unsorted part and place it at front.", time: "O(n^2)", space: "O(1)" },
+  quick: { principle: "Partition by pivot, recursively sort left and right partitions.", time: "Average O(n log n), Worst O(n^2)", space: "O(log n) recursion" },
+  merge: { principle: "Divide array into halves and merge sorted halves.", time: "O(n log n)", space: "O(n)" },
+  shell: { principle: "Gap-based insertion sort, shrinking gap to 1.", time: "Depends on gap sequence", space: "O(1)" },
+  counting: { principle: "Count frequency of each value then rebuild array.", time: "O(n + k)", space: "O(k)" },
+  bucket: { principle: "Distribute values into buckets, sort buckets, concatenate.", time: "Average O(n + k)", space: "O(n + k)" },
+  radix: { principle: "Stable sort by each digit from low to high significance.", time: "O(d*(n + k))", space: "O(n + k)" },
+  heap: { principle: "Use max heap and repeatedly extract max to end.", time: "O(n log n)", space: "O(1)" },
+  linear: { principle: "Scan from left to right until target is found.", time: "O(n)", space: "O(1)" },
+  binary: { principle: "On sorted array, halve search range each step.", time: "O(log n)", space: "O(1)" },
+  bfs: { principle: "Traverse level-by-level using queue.", time: "O(V + E)", space: "O(V)" },
+  dfs: { principle: "Go deep first using stack/recursion.", time: "O(V + E)", space: "O(V)" },
+  dijkstra: { principle: "Expand shortest tentative distance first.", time: "O((V + E) log V)", space: "O(V)" },
+  astar: { principle: "Use heuristic distance to guide target search.", time: "Depends on heuristic", space: "O(V)" },
+  stack: { principle: "LIFO: Last In First Out", time: "O(1)", space: "O(n)" },
+  queue: { principle: "FIFO: First In First Out", time: "O(1)", space: "O(n)" },
+  linkedlist: { principle: "Traverse linearly to tail and append new node.", time: "O(n) insert", space: "O(1)" },
+  bst: { principle: "Insert preserving left < parent < right property.", time: "O(log n) avg, O(n) worst", space: "O(1)" }
+};
+
+const refs = {
+  modeSelect: document.getElementById("modeSelect"),
+  algoSelect: document.getElementById("algoSelect"),
+  compareSelect1: document.getElementById("compareSelect1"),
+  compareSelect2: document.getElementById("compareSelect2"),
+  singleAlgoWrap: document.getElementById("singleAlgoWrap"),
+  compareWrap: document.getElementById("compareWrap"),
+  arrayWrap: document.getElementById("arrayWrap"),
+  targetWrap: document.getElementById("targetWrap"),
+  arrayViewWrap: document.getElementById("arrayViewWrap"),
+  graphEditorWrap: document.getElementById("graphEditorWrap"),
+  arrayInput: document.getElementById("arrayInput"),
+  targetInput: document.getElementById("targetInput"),
+  arrayViewSelect: document.getElementById("arrayViewSelect"),
+  speedRange: document.getElementById("speedRange"),
+  runBtn: document.getElementById("runBtn"),
+  pauseBtn: document.getElementById("pauseBtn"),
+  resumeBtn: document.getElementById("resumeBtn"),
+  stepBtn: document.getElementById("stepBtn"),
+  randomBtn: document.getElementById("randomBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+  setStartBtn: document.getElementById("setStartBtn"),
+  setEndBtn: document.getElementById("setEndBtn"),
+  setWallBtn: document.getElementById("setWallBtn"),
+  eraseBtn: document.getElementById("eraseBtn"),
+  randWallBtn: document.getElementById("randWallBtn"),
+  clearWallBtn: document.getElementById("clearWallBtn"),
+  toggleInfoBtn: document.getElementById("toggleInfoBtn"),
+  vizGrid: document.getElementById("vizGrid"),
+  rightPane: document.getElementById("rightPane"),
+  legend: document.getElementById("legend"),
+  workspace: document.querySelector(".workspace")
+};
+
+const ROWS = 10;
+const COLS = 18;
+
+let runners = [];
+let isAnimating = false;
+const appState = {
+  graphGrid: null,
+  start: 0,
+  end: ROWS * COLS - 1,
+  editTool: "wall",
+  arrayViewMode: "bars",
+  showInfo: true
+};
+
+function parseArray() {
+  return refs.arrayInput.value.split(",").map((x) => Number(x.trim())).filter((x) => !Number.isNaN(x));
+}
+
+function randomArray(n = 14) {
+  const arr = [];
+  for (let i = 0; i < n; i += 1) arr.push(5 + Math.floor(Math.random() * 95));
+  return arr;
+}
+
+function idx(r, c) {
+  return r * COLS + c;
+}
+
+function toRC(i) {
+  return [Math.floor(i / COLS), i % COLS];
+}
+
+function neighbors(i) {
+  const [r, c] = toRC(i);
+  const out = [];
+  if (r > 0) out.push(idx(r - 1, c));
+  if (r < ROWS - 1) out.push(idx(r + 1, c));
+  if (c > 0) out.push(idx(r, c - 1));
+  if (c < COLS - 1) out.push(idx(r, c + 1));
+  return out;
+}
+
+function cloneGrid(grid) {
+  return grid.map((row) => row.map((cell) => ({ wall: cell.wall })));
+}
+
+function randomGrid(density = 0.22, start = 0, end = ROWS * COLS - 1) {
+  const g = [];
+  for (let r = 0; r < ROWS; r += 1) {
+    const row = [];
+    for (let c = 0; c < COLS; c += 1) row.push({ wall: Math.random() < density });
+    g.push(row);
+  }
+  const [sr, sc] = toRC(start);
+  const [er, ec] = toRC(end);
+  g[sr][sc].wall = false;
+  g[er][ec].wall = false;
+  return g;
+}
+
+function reconstructPath(parent, end) {
+  if (parent[end] === -1) return [];
+  const path = [];
+  let cur = end;
+  while (cur !== -2) {
+    path.push(cur);
+    cur = parent[cur];
+  }
+  return path.reverse();
+}
+
+function bubbleSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (let i = 0; i < arr.length; i += 1) {
+    for (let j = 0; j < arr.length - i - 1; j += 1) {
+      steps.push({ arr: arr.slice(), active: [j, j + 1], line: 2 });
+      if (arr[j] > arr[j + 1]) {
+        steps.push({ arr: arr.slice(), active: [j, j + 1], line: 3 });
+        const t = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = t;
+        steps.push({ arr: arr.slice(), active: [j, j + 1], swapped: true, line: 4 });
+      }
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 1 });
+  return steps;
+}
+
+function insertionSteps(input) {
+  const arr = input.slice();
+  const ids = arr.map((_, i) => `c-${i}`);
+  const cardValues = {};
+  ids.forEach((id, i) => { cardValues[id] = arr[i]; });
+  const steps = [{ arr: arr.slice(), cardOrder: ids.slice(), cardValues, line: 1, hold: 1.05 }];
+  for (let i = 1; i < arr.length; i += 1) {
+    const key = arr[i];
+    const keyId = ids[i];
+    let j = i - 1;
+    steps.push({ arr: arr.slice(), cardOrder: ids.slice(), cardValues, active: [i], keyId, phase: "pick", compareIdx: i, line: 2, hold: 1.25 });
+    while (j >= 0 && arr[j] > key) {
+      steps.push({ arr: arr.slice(), cardOrder: ids.slice(), cardValues, active: [j, j + 1], keyId, phase: "shift", compareIdx: j, line: 3, hold: 1.2 });
+      arr[j + 1] = arr[j];
+      ids[j + 1] = ids[j];
+      steps.push({ arr: arr.slice(), cardOrder: ids.slice(), cardValues, active: [j, j + 1], swapped: true, keyId, phase: "shift", compareIdx: j, line: 4, hold: 0.95 });
+      j -= 1;
+    }
+    arr[j + 1] = key;
+    ids[j + 1] = keyId;
+    steps.push({ arr: arr.slice(), cardOrder: ids.slice(), cardValues, active: [j + 1], swapped: true, keyId, phase: "insert", compareIdx: j + 1, line: 5, hold: 1.35 });
+  }
+  steps.push({ arr: arr.slice(), cardOrder: ids.slice(), cardValues, done: true, line: 1, hold: 1.2 });
+  return steps;
+}
+
+function selectionSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (let i = 0; i < arr.length - 1; i += 1) {
+    let min = i;
+    steps.push({ arr: arr.slice(), active: [i], line: 2 });
+    for (let j = i + 1; j < arr.length; j += 1) {
+      steps.push({ arr: arr.slice(), active: [j, min], line: 3 });
+      if (arr[j] < arr[min]) {
+        min = j;
+        steps.push({ arr: arr.slice(), active: [min], line: 4 });
+      }
+    }
+    if (min !== i) {
+      const t = arr[i];
+      arr[i] = arr[min];
+      arr[min] = t;
+    }
+    steps.push({ arr: arr.slice(), active: [i, min], swapped: true, line: 5 });
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 1 });
+  return steps;
+}
+
+function quickSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  function partition(left, right) {
+    const pivot = arr[right];
+    steps.push({ arr: arr.slice(), range: [left, right], pivot: right, line: 2 });
+    let i = left - 1;
+    for (let j = left; j <= right - 1; j += 1) {
+      steps.push({ arr: arr.slice(), active: [j], pivot: right, line: 3 });
+      if (arr[j] < pivot) {
+        steps.push({ arr: arr.slice(), active: [j], pivot: right, line: 4 });
+        i += 1;
+        const t = arr[i];
+        arr[i] = arr[j];
+        arr[j] = t;
+        steps.push({ arr: arr.slice(), active: [i, j], swapped: true, line: 5 });
+      }
+    }
+    const t = arr[i + 1];
+    arr[i + 1] = arr[right];
+    arr[right] = t;
+    steps.push({ arr: arr.slice(), active: [i + 1, right], swapped: true, line: 6 });
+    return i + 1;
+  }
+  function qs(left, right) {
+    if (left < right) {
+      steps.push({ arr: arr.slice(), range: [left, right], line: 1 });
+      const p = partition(left, right);
+      qs(left, p - 1);
+      qs(p + 1, right);
+    }
+  }
+  qs(0, arr.length - 1);
+  steps.push({ arr: arr.slice(), done: true, line: 1 });
+  return steps;
+}
+
+function mergeSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  function merge(left, mid, right) {
+    const L = arr.slice(left, mid + 1);
+    const R = arr.slice(mid + 1, right + 1);
+    let i = 0;
+    let j = 0;
+    let k = left;
+    while (i < L.length && j < R.length) {
+      steps.push({ arr: arr.slice(), active: [k], line: 3 });
+      if (L[i] <= R[j]) arr[k] = L[i++];
+      else arr[k] = R[j++];
+      steps.push({ arr: arr.slice(), active: [k], swapped: true, line: 4 });
+      k += 1;
+    }
+    while (i < L.length) {
+      arr[k] = L[i++];
+      steps.push({ arr: arr.slice(), active: [k], swapped: true, line: 5 });
+      k += 1;
+    }
+    while (j < R.length) {
+      arr[k] = R[j++];
+      steps.push({ arr: arr.slice(), active: [k], swapped: true, line: 5 });
+      k += 1;
+    }
+  }
+  function ms(left, right) {
+    if (left >= right) return;
+    const mid = Math.floor((left + right) / 2);
+    steps.push({ arr: arr.slice(), range: [left, right], line: 2 });
+    ms(left, mid);
+    ms(mid + 1, right);
+    merge(left, mid, right);
+  }
+  ms(0, arr.length - 1);
+  steps.push({ arr: arr.slice(), done: true, line: 1 });
+  return steps;
+}
+
+function shellSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (let gap = Math.floor(arr.length / 2); gap > 0; gap = Math.floor(gap / 2)) {
+    steps.push({ arr: arr.slice(), line: 2 });
+    for (let i = gap; i < arr.length; i += 1) {
+      const temp = arr[i];
+      let j = i;
+      while (j >= gap && arr[j - gap] > temp) {
+        steps.push({ arr: arr.slice(), active: [j - gap, j], line: 4 });
+        arr[j] = arr[j - gap];
+        steps.push({ arr: arr.slice(), active: [j - gap, j], swapped: true, line: 3 });
+        j -= gap;
+      }
+      arr[j] = temp;
+      steps.push({ arr: arr.slice(), active: [j], swapped: true, line: 3 });
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 5 });
+  return steps;
+}
+
+function countingSteps(input) {
+  const arr = input.slice();
+  const min = Math.min(...arr);
+  const max = Math.max(...arr);
+  const count = Array(max - min + 1).fill(0);
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (let i = 0; i < arr.length; i += 1) {
+    count[arr[i] - min] += 1;
+    steps.push({ arr: arr.slice(), active: [i], line: 2 });
+  }
+  let k = 0;
+  for (let v = 0; v < count.length; v += 1) {
+    while (count[v] > 0) {
+      arr[k] = v + min;
+      count[v] -= 1;
+      steps.push({ arr: arr.slice(), active: [k], swapped: true, line: 4 });
+      k += 1;
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 4 });
+  return steps;
+}
+
+function bucketSteps(input) {
+  const arr = input.slice();
+  const min = Math.min(...arr);
+  const max = Math.max(...arr);
+  const bucketCount = 10;
+  const size = Math.max(1, Math.floor((max - min) / bucketCount) + 1);
+  const buckets = Array.from({ length: bucketCount }, () => []);
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (let i = 0; i < arr.length; i += 1) {
+    const bi = Math.min(bucketCount - 1, Math.floor((arr[i] - min) / size));
+    buckets[bi].push(arr[i]);
+    steps.push({ arr: arr.slice(), active: [i], line: 2 });
+  }
+  let p = 0;
+  for (let b = 0; b < buckets.length; b += 1) {
+    buckets[b].sort((a, b2) => a - b2);
+    for (let i = 0; i < buckets[b].length; i += 1) {
+      arr[p] = buckets[b][i];
+      steps.push({ arr: arr.slice(), active: [p], swapped: true, line: 4 });
+      p += 1;
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 4 });
+  return steps;
+}
+
+function radixSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  const max = Math.max(...arr, 0);
+  for (let exp = 1; Math.floor(max / exp) > 0; exp *= 10) {
+    steps.push({ arr: arr.slice(), line: 1 });
+    const out = Array(arr.length).fill(0);
+    const count = Array(10).fill(0);
+    for (let i = 0; i < arr.length; i += 1) {
+      const digit = Math.floor(arr[i] / exp) % 10;
+      count[digit] += 1;
+      steps.push({ arr: arr.slice(), active: [i], line: 2 });
+    }
+    for (let i = 1; i < 10; i += 1) count[i] += count[i - 1];
+    for (let i = arr.length - 1; i >= 0; i -= 1) {
+      const digit = Math.floor(arr[i] / exp) % 10;
+      out[count[digit] - 1] = arr[i];
+      count[digit] -= 1;
+    }
+    for (let i = 0; i < arr.length; i += 1) {
+      arr[i] = out[i];
+      steps.push({ arr: arr.slice(), active: [i], swapped: true, line: 3 });
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 4 });
+  return steps;
+}
+
+function heapSteps(input) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  function heapify(n, i) {
+    let largest = i;
+    const l = 2 * i + 1;
+    const r = 2 * i + 2;
+    if (l < n && arr[l] > arr[largest]) largest = l;
+    if (r < n && arr[r] > arr[largest]) largest = r;
+    if (largest !== i) {
+      const t = arr[i];
+      arr[i] = arr[largest];
+      arr[largest] = t;
+      steps.push({ arr: arr.slice(), active: [i, largest], swapped: true, line: 3 });
+      heapify(n, largest);
+    }
+  }
+  for (let i = Math.floor(arr.length / 2) - 1; i >= 0; i -= 1) heapify(arr.length, i);
+  steps.push({ arr: arr.slice(), line: 1 });
+  for (let end = arr.length - 1; end > 0; end -= 1) {
+    const t = arr[0];
+    arr[0] = arr[end];
+    arr[end] = t;
+    steps.push({ arr: arr.slice(), active: [0, end], swapped: true, line: 2 });
+    heapify(end, 0);
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 4 });
+  return steps;
+}
+
+function linearSteps(input, target) {
+  const arr = input.slice();
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (let i = 0; i < arr.length; i += 1) {
+    steps.push({ arr: arr.slice(), active: [i], line: 1 });
+    if (arr[i] === target) {
+      steps.push({ arr: arr.slice(), active: [i], found: i, line: 2 });
+      steps.push({ arr: arr.slice(), active: [i], found: i, done: true, line: 3 });
+      return steps;
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 4 });
+  return steps;
+}
+
+function binarySteps(input, target) {
+  const arr = input.slice().sort((a, b) => a - b);
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  let low = 0;
+  let high = arr.length - 1;
+  while (low <= high) {
+    steps.push({ arr: arr.slice(), low, high, line: 2 });
+    const mid = Math.floor((low + high) / 2);
+    steps.push({ arr: arr.slice(), low, high, mid, active: [mid], line: 3 });
+    if (arr[mid] === target) {
+      steps.push({ arr: arr.slice(), low, high, mid, active: [mid], found: mid, done: true, line: 4 });
+      return steps;
+    }
+    if (arr[mid] < target) {
+      low = mid + 1;
+      steps.push({ arr: arr.slice(), low, high, mid, active: [mid], line: 5 });
+    } else {
+      high = mid - 1;
+      steps.push({ arr: arr.slice(), low, high, mid, active: [mid], line: 6 });
+    }
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 6 });
+  return steps;
+}
+
+function stackSteps(input) {
+  const arr = [];
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (const val of input) {
+    arr.push(val);
+    steps.push({ arr: arr.slice(), active: [arr.length - 1], line: 2 });
+  }
+  for (let i = 0; i < input.length; i++) {
+    steps.push({ arr: arr.slice(), active: [arr.length - 1], swapped: true, line: 3 });
+    arr.pop();
+    steps.push({ arr: arr.slice(), line: 4 });
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 5 });
+  return steps;
+}
+
+function queueSteps(input) {
+  const arr = [];
+  const steps = [{ arr: arr.slice(), line: 1 }];
+  for (const val of input) {
+    arr.push(val);
+    steps.push({ arr: arr.slice(), active: [arr.length - 1], line: 2 });
+  }
+  for (let i = 0; i < input.length; i++) {
+    steps.push({ arr: arr.slice(), active: [0], swapped: true, line: 3 });
+    arr.shift();
+    steps.push({ arr: arr.slice(), line: 4 });
+  }
+  steps.push({ arr: arr.slice(), done: true, line: 5 });
+  return steps;
+}
+
+function linkedlistSteps(input) {
+  const steps = [{ list: [], line: 1 }];
+  const list = [];
+  for (let i = 0; i < input.length; i++) {
+    const val = input[i];
+    steps.push({ list: [...list], adding: val, line: 2 });
+    list.push(val);
+    steps.push({ list: [...list], active: i, line: 3 });
+  }
+  steps.push({ list: [...list], done: true, line: 5 });
+  return steps;
+}
+
+function bstSteps(input) {
+  const steps = [{ nodes: [], edges: [], line: 1 }];
+  const nodes = [];
+  const edges = [];
+  
+  class Node {
+    constructor(val, id, x, y, level) {
+      this.val = val;
+      this.id = id;
+      this.x = x;
+      this.y = y;
+      this.level = level;
+      this.left = null;
+      this.right = null;
+    }
+  }
+  
+  let root = null;
+  let nodeId = 0;
+  
+  function insert(node, val, x, y, level, parentId) {
+    if (!node) {
+      const newNode = new Node(val, nodeId++, x, y, level);
+      nodes.push(newNode);
+      if (parentId !== null) {
+        edges.push({ source: parentId, target: newNode.id });
+      }
+      steps.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)), active: newNode.id, line: 2 });
+      return newNode;
+    }
+    
+    steps.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)), active: node.id, line: 3 });
+    
+    const offset = 20 / (level + 1);
+    if (val < node.val) {
+      steps.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)), active: node.id, line: 4 });
+      node.left = insert(node.left, val, x - offset, y + 15, level + 1, node.id);
+    } else {
+      steps.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)), active: node.id, line: 5 });
+      node.right = insert(node.right, val, x + offset, y + 15, level + 1, node.id);
+    }
+    return node;
+  }
+  
+  for (const val of input) {
+    root = insert(root, val, 50, 10, 0, null);
+  }
+  
+  steps.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)), done: true, line: 6 });
+  return steps;
+}
+
+function bfsGridSteps(grid, start, end) {
+  const N = ROWS * COLS;
+  const steps = [{ line: 1, visited: [], path: [], start, end }];
+  const visited = Array(N).fill(false);
+  const parent = Array(N).fill(-1);
+  parent[start] = -2;
+  const q = [start];
+  visited[start] = true;
+  while (q.length) {
+    steps.push({ line: 2, visited: visited.slice(), path: [], current: q[0], start, end });
+    const u = q.shift();
+    if (u === end) break;
+    for (const v of neighbors(u)) {
+      const [r, c] = toRC(v);
+      if (grid[r][c].wall) continue;
+      steps.push({ line: 4, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      if (!visited[v]) {
+        visited[v] = true;
+        parent[v] = u;
+        q.push(v);
+        steps.push({ line: 5, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      }
+    }
+  }
+  const path = reconstructPath(parent, end);
+  for (let i = 0; i < path.length; i += 1) {
+    steps.push({ line: 5, visited: visited.slice(), path: path.slice(0, i + 1), current: path[i], start, end });
+  }
+  steps.push({ line: 1, visited: visited.slice(), path, done: true, start, end });
+  return steps;
+}
+
+function dfsGridSteps(grid, start, end) {
+  const N = ROWS * COLS;
+  const steps = [{ line: 1, visited: [], path: [], start, end }];
+  const visited = Array(N).fill(false);
+  const parent = Array(N).fill(-1);
+  parent[start] = -2;
+  const stack = [start];
+  while (stack.length) {
+    steps.push({ line: 2, visited: visited.slice(), path: [], current: stack[stack.length - 1], start, end });
+    const u = stack.pop();
+    if (visited[u]) continue;
+    visited[u] = true;
+    steps.push({ line: 3, visited: visited.slice(), path: [], current: u, start, end });
+    if (u === end) break;
+    const adj = neighbors(u);
+    for (let k = adj.length - 1; k >= 0; k -= 1) {
+      const v = adj[k];
+      const [r, c] = toRC(v);
+      if (grid[r][c].wall) continue;
+      steps.push({ line: 4, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      if (!visited[v]) {
+        if (parent[v] === -1) parent[v] = u;
+        stack.push(v);
+        steps.push({ line: 5, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      }
+    }
+  }
+  const path = reconstructPath(parent, end);
+  for (let i = 0; i < path.length; i += 1) {
+    steps.push({ line: 5, visited: visited.slice(), path: path.slice(0, i + 1), current: path[i], start, end });
+  }
+  steps.push({ line: 1, visited: visited.slice(), path, done: true, start, end });
+  return steps;
+}
+
+function dijkstraGridSteps(grid, start, end) {
+  const N = ROWS * COLS;
+  const dist = Array(N).fill(Infinity);
+  const visited = Array(N).fill(false);
+  const parent = Array(N).fill(-1);
+  dist[start] = 0;
+  parent[start] = -2;
+  const steps = [{ line: 1, visited: visited.slice(), path: [], start, end }];
+  function pickMin() {
+    let best = -1;
+    for (let i = 0; i < N; i += 1) {
+      if (!visited[i] && dist[i] < Infinity && (best === -1 || dist[i] < dist[best])) best = i;
+    }
+    return best;
+  }
+  while (true) {
+    const u = pickMin();
+    if (u === -1) break;
+    visited[u] = true;
+    steps.push({ line: 2, visited: visited.slice(), path: [], current: u, start, end });
+    if (u === end) break;
+    for (const v of neighbors(u)) {
+      const [r, c] = toRC(v);
+      if (grid[r][c].wall || visited[v]) continue;
+      steps.push({ line: 3, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      const nd = dist[u] + 1;
+      if (nd < dist[v]) {
+        dist[v] = nd;
+        parent[v] = u;
+        steps.push({ line: 4, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      }
+    }
+  }
+  const path = reconstructPath(parent, end);
+  for (let i = 0; i < path.length; i += 1) {
+    steps.push({ line: 4, visited: visited.slice(), path: path.slice(0, i + 1), current: path[i], start, end });
+  }
+  steps.push({ line: 1, visited: visited.slice(), path, done: true, start, end });
+  return steps;
+}
+
+function aStarGridSteps(grid, start, end) {
+  const N = ROWS * COLS;
+  const gScore = Array(N).fill(Infinity);
+  const fScore = Array(N).fill(Infinity);
+  const visited = Array(N).fill(false);
+  const parent = Array(N).fill(-1);
+  
+  const [er, ec] = toRC(end);
+  function h(node) {
+    const [r, c] = toRC(node);
+    return Math.abs(r - er) + Math.abs(c - ec);
+  }
+  
+  gScore[start] = 0;
+  fScore[start] = h(start);
+  parent[start] = -2;
+  const steps = [{ line: 1, visited: visited.slice(), path: [], start, end }];
+  
+  while (true) {
+    let u = -1;
+    let best = Infinity;
+    for (let i = 0; i < N; i += 1) {
+      if (!visited[i] && fScore[i] < best) {
+        u = i;
+        best = fScore[i];
+      }
+    }
+    
+    if (u === -1) break;
+    visited[u] = true;
+    steps.push({ line: 2, visited: visited.slice(), path: [], current: u, start, end });
+    
+    if (u === end) break;
+    
+    for (const v of neighbors(u)) {
+      const [r, c] = toRC(v);
+      if (grid[r][c].wall || visited[v]) continue;
+      steps.push({ line: 3, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      
+      const tg = gScore[u] + 1;
+      if (tg < gScore[v]) {
+        parent[v] = u;
+        gScore[v] = tg;
+        fScore[v] = tg + h(v);
+        steps.push({ line: 4, visited: visited.slice(), path: [], current: u, inspect: v, start, end });
+      }
+    }
+  }
+  const path = reconstructPath(parent, end);
+  for (let i = 0; i < path.length; i += 1) {
+    steps.push({ line: 4, visited: visited.slice(), path: path.slice(0, i + 1), current: path[i], start, end });
+  }
+  steps.push({ line: 5, visited: visited.slice(), path, done: true, start, end });
+  return steps;
+}
+
+function buildRunner(config) {
+  const card = document.createElement("article");
+  card.className = "viz-card";
+  const h = document.createElement("h3");
+  h.className = "viz-title";
+  h.textContent = config.title;
+  const host = document.createElement("div");
+  const footer = document.createElement("p");
+  footer.className = "small-note";
+  footer.textContent = "Step 0";
+  card.appendChild(h);
+  card.appendChild(host);
+  card.appendChild(footer);
+  refs.vizGrid.appendChild(card);
+
+  let codeBox = null;
+  if (appState.showInfo) {
+    const codeCard = document.createElement("section");
+    codeCard.className = "code-card";
+    const codeTitle = document.createElement("h3");
+    codeTitle.className = "viz-title";
+    codeTitle.textContent = config.title + " Code";
+    codeBox = document.createElement("pre");
+    codeBox.className = "code-box";
+    codeCard.appendChild(codeTitle);
+    codeCard.appendChild(codeBox);
+    refs.rightPane.appendChild(codeCard);
+  }
+
+  return {
+    title: config.title,
+    algo: config.algo,
+    kind: config.kind,
+    data: config.data,
+    steps: config.steps,
+    code: codeBook[config.algo],
+    explain: explainBook[config.algo],
+    host,
+    codeBox,
+    footer,
+    idx: 0,
+    paused: false,
+    timer: null,
+    finished: false,
+    renderedGrid: null,
+    editable: !!config.editable
+  };
+}
+
+function renderCode(runner, line) {
+  if (!runner.codeBox) return;
+  const html = runner.code.map((txt, i) => {
+    const n = i + 1;
+    const cls = n === line ? "line active" : "line";
+    return `<span class="${cls}">${String(n).padStart(2, "0")}. ${txt}</span>`;
+  }).join("");
+  runner.codeBox.innerHTML = html;
+}
+
+function renderExplain(runner) {
+  if (!appState.showInfo) return;
+  const card = document.createElement("section");
+  card.className = "explain-card";
+  card.innerHTML = [
+    `<h3 class="viz-title">${runner.title} Explanation</h3>`,
+    `<p class="small-note"><strong>Principle:</strong> ${runner.explain.principle}</p>`,
+    `<p class="small-note"><strong>Time:</strong> ${runner.explain.time}</p>`,
+    `<p class="small-note"><strong>Space:</strong> ${runner.explain.space}</p>`
+  ].join("");
+  refs.rightPane.appendChild(card);
+}
+
+function renderArray(runner, step) {
+  const arr = step.arr || [];
+  const max = Math.max(...arr, 1);
+  const active = new Set(step.active || []);
+  const low = typeof step.low === "number" ? step.low : -1;
+  const high = typeof step.high === "number" ? step.high : -1;
+
+  if (appState.arrayViewMode === "cards") {
+    runner.host.className = "array-cards";
+    const order = step.cardOrder || deriveCardOrderFromArray(runner, arr);
+    if (!runner.cardNodes) runner.cardNodes = new Map();
+    const rootWidth = runner.host.clientWidth || 640;
+    const pad = 10;
+    const slotW = Math.max(26, (rootWidth - pad * 2) / order.length);
+    const cardW = Math.max(30, slotW - 8);
+    const duration = Math.max(90, Math.floor(Number(refs.speedRange.value) * 0.72));
+
+    order.forEach((id, i) => {
+      if (!runner.cardNodes.has(id)) {
+        const node = document.createElement("div");
+        node.className = "num-card";
+        const value = step.cardValues && typeof step.cardValues[id] !== "undefined"
+          ? step.cardValues[id]
+          : runner.dynamicCardValues && typeof runner.dynamicCardValues[id] !== "undefined"
+            ? runner.dynamicCardValues[id]
+            : arr[i];
+        node.textContent = value;
+        node.title = String(value);
+        runner.host.appendChild(node);
+        runner.cardNodes.set(id, node);
+      }
+    });
+
+    order.forEach((id, i) => {
+      const node = runner.cardNodes.get(id);
+      if (!node) return;
+      const x = pad + i * slotW;
+      let lift = 0;
+      if (step.keyId === id && step.phase !== "insert") lift = -36;
+      else if (active.has(i) && step.swapped) lift = -14;
+      else if (active.has(i)) lift = -8;
+      let easing = "cubic-bezier(0.2, 0.9, 0.2, 1)";
+      if (step.phase === "shift") easing = "cubic-bezier(0.22, 1, 0.36, 1)";
+      if (step.phase === "insert" && step.keyId === id) easing = "cubic-bezier(0.18, 1.25, 0.35, 1)";
+      node.style.width = `${cardW}px`;
+      node.style.transition = `transform ${duration}ms ${easing}, background-color 120ms linear`;
+      node.style.transform = `translate(${x}px, ${lift}px)`;
+      node.classList.toggle("active", active.has(i));
+      node.classList.toggle("swap", active.has(i) && !!step.swapped);
+      node.classList.toggle("found", step.found === i);
+      node.classList.toggle("key", step.keyId === id);
+      node.style.zIndex = step.keyId === id ? "5" : active.has(i) ? "3" : "1";
+    });
+
+    if (!runner.comparePointer) {
+      const pointer = document.createElement("div");
+      pointer.className = "compare-pointer";
+      runner.host.appendChild(pointer);
+      runner.comparePointer = pointer;
+      const label = document.createElement("div");
+      label.className = "compare-label";
+      label.textContent = "j";
+      runner.host.appendChild(label);
+      runner.compareLabel = label;
+    }
+
+    if (typeof step.compareIdx === "number") {
+      const px = pad + step.compareIdx * slotW + cardW / 2 - 8;
+      runner.comparePointer.style.display = "block";
+      runner.compareLabel.style.display = "block";
+      runner.comparePointer.style.transform = `translateX(${px}px)`;
+      runner.compareLabel.style.transform = `translateX(${Math.max(0, px - 8)}px)`;
+      runner.compareLabel.textContent = step.phase === "pick" ? "key" : "j";
+    } else {
+      runner.comparePointer.style.display = "none";
+      runner.compareLabel.style.display = "none";
+    }
+
+    for (const [id, node] of runner.cardNodes.entries()) {
+      if (!order.includes(id)) {
+        node.remove();
+        runner.cardNodes.delete(id);
+      }
+    }
+    runner.dynamicCardOrder = order.slice();
+    return;
+  }
+
+  runner.host.className = "array-view";
+  const bars = arr.map((v, i) => {
+    let color = "var(--bar)";
+    if (step.found === i) color = "var(--bar-found)";
+    else if (active.has(i) && step.swapped) color = "var(--bar-swap)";
+    else if (active.has(i)) color = "var(--bar-active)";
+    else if (i >= low && i <= high && low !== -1) color = "#9db9ff";
+    const h = Math.max(6, Math.round((v / max) * 100));
+    return `<div class="bar" style="height:${h}%; background:${color}" title="${v}"></div>`;
+  }).join("");
+  runner.host.innerHTML = bars;
+}
+
+function deriveCardOrderFromArray(runner, arr) {
+  if (!runner.dynamicCardOrder || !runner.dynamicCardValues) {
+    const ids = arr.map((_, i) => `d-${i}`);
+    const values = {};
+    ids.forEach((id, i) => { values[id] = arr[i]; });
+    runner.dynamicCardOrder = ids.slice();
+    runner.dynamicCardValues = values;
+    return ids;
+  }
+
+  const queues = new Map();
+  runner.dynamicCardOrder.forEach((id) => {
+    const value = runner.dynamicCardValues[id];
+    if (!queues.has(value)) queues.set(value, []);
+    queues.get(value).push(id);
+  });
+
+  const nextOrder = [];
+  for (let i = 0; i < arr.length; i += 1) {
+    const value = arr[i];
+    const q = queues.get(value);
+    if (q && q.length) {
+      nextOrder.push(q.shift());
+    } else {
+      const id = `d-new-${i}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      runner.dynamicCardValues[id] = value;
+      nextOrder.push(id);
+    }
+  }
+
+  runner.dynamicCardOrder = nextOrder.slice();
+  return nextOrder;
+}
+
+function applyGraphEdit(cellIndex) {
+  if (isAnimating) return;
+  const grid = appState.graphGrid;
+  const [r, c] = toRC(cellIndex);
+  if (appState.editTool === "start") {
+    appState.start = cellIndex;
+    grid[r][c].wall = false;
+  } else if (appState.editTool === "end") {
+    appState.end = cellIndex;
+    grid[r][c].wall = false;
+  } else if (appState.editTool === "erase") {
+    if (cellIndex !== appState.start && cellIndex !== appState.end) grid[r][c].wall = false;
+  } else {
+    if (cellIndex !== appState.start && cellIndex !== appState.end) grid[r][c].wall = !grid[r][c].wall;
+  }
+  setupBoard();
+}
+
+function buildGridDom(runner, grid) {
+  runner.host.className = "grid-view";
+  runner.host.innerHTML = "";
+  const cells = [];
+  for (let r = 0; r < ROWS; r += 1) {
+    for (let c = 0; c < COLS; c += 1) {
+      const d = document.createElement("div");
+      d.className = "cell";
+      if (grid[r][c].wall) d.classList.add("wall");
+      if (runner.editable) {
+        const i = idx(r, c);
+        d.addEventListener("click", () => applyGraphEdit(i));
+      }
+      runner.host.appendChild(d);
+      cells.push(d);
+    }
+  }
+  runner.renderedGrid = cells;
+}
+
+function renderGrid(runner, step) {
+  if (!runner.renderedGrid) buildGridDom(runner, runner.data.grid);
+  const visited = step.visited || [];
+  const pathSet = new Set(step.path || []);
+  const start = typeof step.start === "number" ? step.start : appState.start;
+  const end = typeof step.end === "number" ? step.end : appState.end;
+  for (let i = 0; i < runner.renderedGrid.length; i += 1) {
+    const cell = runner.renderedGrid[i];
+    cell.classList.remove("visited", "path", "start", "end");
+    if (visited[i]) cell.classList.add("visited");
+    if (pathSet.has(i)) cell.classList.add("path");
+  }
+  runner.renderedGrid[start].classList.add("start");
+  runner.renderedGrid[end].classList.add("end");
+}
+
+function renderLinkedList(runner, step) {
+  if (!runner.renderedGrid) {
+    runner.renderedGrid = document.createElement("div");
+    runner.renderedGrid.className = "ds-container";
+    runner.renderedGrid.style.display = "flex";
+    runner.renderedGrid.style.alignItems = "center";
+    runner.renderedGrid.style.justifyContent = "center";
+    runner.renderedGrid.style.flexWrap = "wrap";
+    runner.renderedGrid.style.padding = "10px";
+    runner.host.innerHTML = "";
+    runner.host.appendChild(runner.renderedGrid);
+  }
+  
+  const container = runner.renderedGrid;
+  container.innerHTML = "";
+  
+  let html = "";
+  const list = step.list || [];
+  for (let i = 0; i < list.length; i++) {
+    const val = list[i];
+    let className = "list-node";
+    if (step.active === i) className += " active";
+    html += `<div class="${className}">${val}</div>`;
+    if (i < list.length - 1) {
+      html += `<div class="list-arrow">→</div>`;
+    }
+  }
+  
+  if (step.adding !== undefined) {
+    if (list.length > 0) {
+      html += `<div class="list-arrow">→</div>`;
+    }
+    html += `<div class="list-node active" style="opacity: 0.7;">${step.adding}</div>`;
+  }
+  
+  container.innerHTML = html;
+}
+
+function renderBST(runner, step) {
+  if (!runner.renderedGrid) {
+    runner.renderedGrid = document.createElement("div");
+    runner.renderedGrid.className = "ds-container";
+    runner.host.innerHTML = "";
+    runner.host.appendChild(runner.renderedGrid);
+  }
+  
+  const container = runner.renderedGrid;
+  container.innerHTML = "";
+  
+  const svgNamespace = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNamespace, "svg");
+  svg.style.position = "absolute";
+  svg.style.top = "0";
+  svg.style.left = "0";
+  svg.style.width = "100%";
+  svg.style.height = "100%";
+  svg.style.pointerEvents = "none";
+  container.appendChild(svg);
+  
+  const edges = step.edges || [];
+  const nodes = step.nodes || [];
+  
+  for (const edge of edges) {
+    const source = nodes.find(n => n.id === edge.source);
+    const target = nodes.find(n => n.id === edge.target);
+    if (source && target) {
+      const line = document.createElementNS(svgNamespace, "line");
+      line.setAttribute("x1", `${source.x}%`);
+      line.setAttribute("y1", `${source.y}%`);
+      line.setAttribute("x2", `${target.x}%`);
+      line.setAttribute("y2", `${target.y}%`);
+      line.setAttribute("stroke", "var(--sub)");
+      line.setAttribute("stroke-width", "2");
+      svg.appendChild(line);
+    }
+  }
+  
+  for (const node of nodes) {
+    const div = document.createElement("div");
+    div.className = "tree-node";
+    if (step.active === node.id) div.classList.add("active");
+    div.style.left = `${node.x}%`;
+    div.style.top = `${node.y}%`;
+    div.textContent = node.val;
+    container.appendChild(div);
+  }
+}
+
+function renderStep(runner) {
+  const step = runner.steps[Math.min(runner.idx, runner.steps.length - 1)];
+  if (!step) return;
+  if (runner.kind === "array") renderArray(runner, step);
+  else if (runner.kind === "linkedlist") renderLinkedList(runner, step);
+  else if (runner.kind === "bst") renderBST(runner, step);
+  else renderGrid(runner, step);
+  renderCode(runner, step.line || 1);
+  let extra = "";
+  if (typeof step.low === "number") extra += ` | left=${step.low}`;
+  if (typeof step.high === "number") extra += ` right=${step.high}`;
+  if (typeof step.mid === "number") extra += ` mid=${step.mid}`;
+  runner.footer.textContent = `Step ${runner.idx + 1} / ${runner.steps.length}${extra}`;
+}
+
+function tickRunner(runner) {
+  if (runner.paused || runner.finished) return;
+  const step = runner.steps[Math.min(runner.idx, runner.steps.length - 1)];
+  renderStep(runner);
+  if (runner.idx >= runner.steps.length - 1) {
+    runner.finished = true;
+    isAnimating = runners.some((r) => !r.finished);
+    return;
+  }
+  runner.idx += 1;
+  const baseDelay = Number(refs.speedRange.value);
+  const hold = step && typeof step.hold === "number" ? step.hold : 1;
+  runner.timer = setTimeout(() => tickRunner(runner), Math.max(30, Math.floor(baseDelay * hold)));
+}
+
+function startAll() {
+  isAnimating = true;
+  runners.forEach((runner) => {
+    clearTimeout(runner.timer);
+    runner.paused = false;
+    runner.finished = false;
+    runner.idx = 0;
+    runner.renderedGrid = null;
+    runner.cardNodes = null;
+    runner.comparePointer = null;
+    runner.compareLabel = null;
+    runner.dynamicCardOrder = null;
+    runner.dynamicCardValues = null;
+    runner.host.innerHTML = "";
+    renderStep(runner);
+    tickRunner(runner);
+  });
+}
+
+function pauseAll() {
+  isAnimating = false;
+  runners.forEach((r) => {
+    r.paused = true;
+    clearTimeout(r.timer);
+  });
+}
+
+function resumeAll() {
+  isAnimating = true;
+  runners.forEach((r) => {
+    if (!r.finished) {
+      r.paused = false;
+      clearTimeout(r.timer);
+      r.timer = setTimeout(() => tickRunner(r), Number(refs.speedRange.value));
+    }
+  });
+}
+
+function stepAll() {
+  isAnimating = false;
+  runners.forEach((r) => {
+    clearTimeout(r.timer);
+    r.paused = true;
+    if (!r.finished) {
+      renderStep(r);
+      if (r.idx < r.steps.length - 1) r.idx += 1;
+      else r.finished = true;
+    }
+  });
+}
+
+function resetAll() {
+  isAnimating = false;
+  runners.forEach((r) => clearTimeout(r.timer));
+  runners = [];
+  refs.vizGrid.innerHTML = "";
+  refs.rightPane.innerHTML = "";
+  refs.legend.innerHTML = "";
+}
+
+function algoKind(algo) {
+  if (algo === "linkedlist" || algo === "bst") return algo;
+  return arrayAlgos.includes(algo) ? "array" : "grid";
+}
+
+function createSingleConfig(algo) {
+  const kind = algoKind(algo);
+  if (kind === "linkedlist") {
+    const arr = parseArray();
+    const steps = linkedlistSteps(arr);
+    return [{ title: "LINKED LIST", algo, kind, data: { arr }, steps }];
+  }
+  if (kind === "bst") {
+    const arr = parseArray();
+    const steps = bstSteps(arr);
+    return [{ title: "BINARY SEARCH TREE", algo, kind, data: { arr }, steps }];
+  }
+  if (kind === "array") {
+    const arr = parseArray();
+    const target = Number(refs.targetInput.value);
+    let steps = [];
+    if (algo === "bubble") steps = bubbleSteps(arr);
+    if (algo === "insertion") steps = insertionSteps(arr);
+    if (algo === "selection") steps = selectionSteps(arr);
+    if (algo === "quick") steps = quickSteps(arr);
+    if (algo === "merge") steps = mergeSteps(arr);
+    if (algo === "shell") steps = shellSteps(arr);
+    if (algo === "counting") steps = countingSteps(arr);
+    if (algo === "bucket") steps = bucketSteps(arr);
+    if (algo === "radix") steps = radixSteps(arr);
+    if (algo === "heap") steps = heapSteps(arr);
+    if (algo === "stack") steps = stackSteps(arr);
+    if (algo === "queue") steps = queueSteps(arr);
+    if (algo === "linear") steps = linearSteps(arr, target);
+    if (algo === "binary") steps = binarySteps(arr, target);
+    return [{ title: algo.toUpperCase(), algo, kind, data: { arr }, steps }];
+  }
+  const grid = cloneGrid(appState.graphGrid);
+  let steps = [];
+  if (algo === "dfs") steps = dfsGridSteps(grid, appState.start, appState.end);
+  if (algo === "bfs") steps = bfsGridSteps(grid, appState.start, appState.end);
+  if (algo === "dijkstra") steps = dijkstraGridSteps(grid, appState.start, appState.end);
+  if (algo === "astar") steps = aStarGridSteps(grid, appState.start, appState.end);
+  return [{ title: algo.toUpperCase(), algo, kind, data: { grid }, steps, editable: true }];
+}
+
+function createCompareConfig() {
+  const arr = parseArray();
+  const a1 = refs.compareSelect1.value;
+  const a2 = refs.compareSelect2.value;
+
+  function getSteps(algo, data) {
+     if (algo === "bubble") return bubbleSteps(data);
+     if (algo === "insertion") return insertionSteps(data);
+     if (algo === "selection") return selectionSteps(data);
+     if (algo === "quick") return quickSteps(data);
+     if (algo === "merge") return mergeSteps(data);
+     if (algo === "shell") return shellSteps(data);
+     if (algo === "heap") return heapSteps(data);
+     return bubbleSteps(data);
+  }
+
+  return [
+    { title: a1.toUpperCase() + " SORT", algo: a1, kind: "array", data: { arr: arr.slice() }, steps: getSteps(a1, arr.slice()) },
+    { title: a2.toUpperCase() + " SORT", algo: a2, kind: "array", data: { arr: arr.slice() }, steps: getSteps(a2, arr.slice()) }
+  ];
+}
+
+function renderLegend(list) {
+  if (list[0].kind === "array") {
+    refs.legend.innerHTML = [
+      '<span><span class="dot" style="background:var(--bar)"></span>Normal</span>',
+      '<span><span class="dot" style="background:var(--bar-active)"></span>Current Compare</span>',
+      '<span><span class="dot" style="background:var(--bar-swap)"></span>Swap/Write</span>',
+      '<span><span class="dot" style="background:var(--bar-found)"></span>Found</span>'
+    ].join("");
+  } else {
+    refs.legend.innerHTML = [
+      '<span><span class="dot" style="background:var(--cell-start)"></span>Start</span>',
+      '<span><span class="dot" style="background:var(--cell-end)"></span>End</span>',
+      '<span><span class="dot" style="background:var(--cell-visit)"></span>Visited</span>',
+      '<span><span class="dot" style="background:var(--cell-path)"></span>Final Path</span>',
+      '<span><span class="dot" style="background:var(--cell-wall)"></span>Wall</span>'
+    ].join("");
+  }
+}
+
+function setupBoard() {
+  resetAll();
+  const mode = refs.modeSelect.value;
+  const list = mode === "single" ? createSingleConfig(refs.algoSelect.value) : createCompareConfig();
+  refs.vizGrid.className = mode === "compare" ? "viz-grid compare" : "viz-grid";
+  runners = list.map((cfg) => buildRunner(cfg));
+  runners.forEach((runner) => renderExplain(runner));
+  renderLegend(list);
+  runners.forEach((runner) => renderStep(runner));
+}
+
+function isGraphEditingMode() {
+  return refs.modeSelect.value === "single" && graphAlgos.includes(refs.algoSelect.value);
+}
+
+function updateToolButtons() {
+  [refs.setStartBtn, refs.setEndBtn, refs.setWallBtn, refs.eraseBtn].forEach((btn) => btn.classList.remove("active-tool"));
+  if (appState.editTool === "start") refs.setStartBtn.classList.add("active-tool");
+  if (appState.editTool === "end") refs.setEndBtn.classList.add("active-tool");
+  if (appState.editTool === "wall") refs.setWallBtn.classList.add("active-tool");
+  if (appState.editTool === "erase") refs.eraseBtn.classList.add("active-tool");
+}
+
+function applyModeUI() {
+  const mode = refs.modeSelect.value;
+  const algo = refs.algoSelect.value;
+  refs.singleAlgoWrap.style.display = mode === "single" ? "flex" : "none";
+  refs.compareWrap.style.display = mode === "compare" ? "flex" : "none";
+  const showArray = mode === "compare" ? true : arrayAlgos.includes(algo);
+  const showTarget = mode === "single" && ["linear", "binary"].includes(algo);
+  refs.arrayWrap.style.display = showArray ? "flex" : "none";
+  refs.arrayViewWrap.style.display = showArray ? "flex" : "none";
+  refs.targetWrap.style.display = showTarget ? "flex" : "none";
+  refs.graphEditorWrap.style.display = isGraphEditingMode() ? "flex" : "none";
+  updateToolButtons();
+}
+
+function toggleInfoPane() {
+  appState.showInfo = !appState.showInfo;
+  refs.workspace.classList.toggle("focus-viz", !appState.showInfo);
+  refs.toggleInfoBtn.textContent = appState.showInfo ? "Hide Code & Explain" : "Show Code & Explain";
+  setupBoard();
+}
+
+refs.modeSelect.addEventListener("change", () => {
+  applyModeUI();
+  setupBoard();
+});
+refs.algoSelect.addEventListener("change", () => {
+  applyModeUI();
+  setupBoard();
+});
+refs.compareSelect1.addEventListener("change", () => {
+  setupBoard();
+});
+refs.compareSelect2.addEventListener("change", () => {
+  setupBoard();
+});
+
+refs.randomBtn.addEventListener("click", () => {
+  if (isGraphEditingMode()) {
+    appState.graphGrid = randomGrid(0.24, appState.start, appState.end);
+  } else {
+    const n = refs.modeSelect.value === "compare" ? 18 : 14;
+    refs.arrayInput.value = randomArray(n).join(",");
+  }
+  setupBoard();
+});
+
+refs.runBtn.addEventListener("click", () => {
+  setupBoard();
+  startAll();
+});
+refs.pauseBtn.addEventListener("click", pauseAll);
+refs.resumeBtn.addEventListener("click", resumeAll);
+refs.stepBtn.addEventListener("click", stepAll);
+refs.resetBtn.addEventListener("click", setupBoard);
+
+refs.setStartBtn.addEventListener("click", () => {
+  appState.editTool = "start";
+  updateToolButtons();
+});
+refs.setEndBtn.addEventListener("click", () => {
+  appState.editTool = "end";
+  updateToolButtons();
+});
+refs.setWallBtn.addEventListener("click", () => {
+  appState.editTool = "wall";
+  updateToolButtons();
+});
+refs.eraseBtn.addEventListener("click", () => {
+  appState.editTool = "erase";
+  updateToolButtons();
+});
+refs.randWallBtn.addEventListener("click", () => {
+  appState.graphGrid = randomGrid(0.24, appState.start, appState.end);
+  setupBoard();
+});
+refs.clearWallBtn.addEventListener("click", () => {
+  appState.graphGrid = randomGrid(0, appState.start, appState.end);
+  setupBoard();
+});
+
+refs.arrayInput.addEventListener("change", setupBoard);
+refs.targetInput.addEventListener("change", setupBoard);
+refs.arrayViewSelect.addEventListener("change", () => {
+  appState.arrayViewMode = refs.arrayViewSelect.value;
+  setupBoard();
+});
+refs.toggleInfoBtn.addEventListener("click", toggleInfoPane);
+
+appState.graphGrid = randomGrid(0.22, appState.start, appState.end);
+appState.arrayViewMode = refs.arrayViewSelect.value;
+applyModeUI();
+setupBoard();
